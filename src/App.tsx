@@ -1,16 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import reactLogo from "@/assets/react.svg";
 import viteLogo from "/vite.svg";
 import "@/App.css";
-import { Box, Button as MuiButton } from "@mui/material";
+import { Box, Button as MuiButton, Typography, Divider } from "@mui/material";
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
 import { z } from "zod";
+import { StatefulCounter } from "@components/StatefulCounter";
+import { StatelessDisplay } from "@components/StatelessDisplay";
+import { ClassCounter } from "@components/ClassCounter";
 
 function App() {
   const [count, setCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [message, setMessage] = useState(
+    "This is content from parent component",
+  );
+
+  const [isClassCounterMounted, setIsClassCounterMounted] = useState(true);
+  useEffect(() => {
+    console.log("App component mounted, ClassCounter should initialize");
+  }, []);
 
   const emailSchema = z.string().email("Invalid email format");
 
@@ -35,6 +46,14 @@ function App() {
     }
   };
 
+  const updateMessage = () => {
+    setMessage(`Updated content: ${new Date().toLocaleTimeString()}`);
+  };
+
+  const toggleClassCounter = () => {
+    setIsClassCounterMounted((prev) => !prev);
+  };
+
   return (
     <>
       <div>
@@ -46,6 +65,53 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
+
+      <Box sx={{ marginY: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          React Components Demonstration
+        </Typography>
+        <Divider sx={{ marginY: 2 }} />
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <StatefulCounter
+            initialValue={5}
+            step={2}
+            label="Interactive Counter"
+          />
+
+          <Box>
+            <StatelessDisplay title="Information Display" content={message} />
+            <MuiButton
+              onClick={updateMessage}
+              variant="contained"
+              sx={{ marginTop: 2 }}
+            >
+              Update Content
+            </MuiButton>
+          </Box>
+
+          <Box sx={{ textAlign: "center", marginY: 2 }}>
+            <MuiButton
+              onClick={toggleClassCounter}
+              variant="outlined"
+              color="info"
+            >
+              {isClassCounterMounted ? "Unmount" : "Mount"} Class Counter
+            </MuiButton>
+          </Box>
+
+          {isClassCounterMounted && (
+            <ClassCounter
+              initialValue={10}
+              step={5}
+              label="Class-Based Counter"
+            />
+          )}
+        </Box>
+      </Box>
+
+      <Divider sx={{ marginY: 4 }} />
+
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
